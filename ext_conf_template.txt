@@ -1,0 +1,17 @@
+# cat=ga4/; type=; label=Google Analytics 4
+# cat=ga4; type=string; label=Measurement ID (es. G-XXXXXXXXXX)
+measurementId =
+# cat=ga4; type=string; label=API Secret (Measurement Protocol)
+apiSecret =
+# cat=ga4; type=boolean; label=Debug Mode
+debugMode = 0
+# cat=ga4; type=int+; label=Timeout chiamata HTTP (secondi)
+timeoutSeconds = 2
+
+# cat=consent/; type=; label=Privacy / Consenso
+# cat=consent; type=options[always,cookie,cookiebot,none]; label=Strategia consenso
+consentStrategy = always
+# cat=consent; type=string; label=Nome cookie consenso (solo strategia cookie)
+consentCookieName = analytics_consent
+# cat=consent; type=string; label=Valore atteso cookie consenso (solo strategia cookie)
+consentCookieValue = 1

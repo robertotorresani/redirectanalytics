@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Torresani\Redirectanalytics\:
+    resource: '../Classes/*'
+
+  Torresani\Redirectanalytics\EventListener\RedirectAnalyticsListener:
+    tags:
+      - name: event.listener
+        identifier: 'torresani/redirectanalytics/redirect-was-hit'
+        event: TYPO3\CMS\Redirects\Event\RedirectWasHitEvent
