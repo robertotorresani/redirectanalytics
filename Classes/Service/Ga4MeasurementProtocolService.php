@@ -16,7 +16,9 @@ class Ga4MeasurementProtocolService
 
     private string $measurementId;
     private string $apiSecret;
-    private bool $debugMode;
+    private bool   $sendPageView;
+    private bool   $sendRedirectHit;
+    private string $redirectHitName;    private bool $debugMode;
     private int $timeoutSeconds;
     private LoggerInterface $logger;
 
@@ -27,14 +29,21 @@ class Ga4MeasurementProtocolService
         $config = $this->loadExtensionConfig();
         $this->measurementId  = (string)($config['measurementId'] ?? '');
         $this->apiSecret      = (string)($config['apiSecret'] ?? '');
+        $this->sendPageView    = (bool)($config['pageView'] ?? false);
+        $this->sendRedirectHit = (bool)($config['redirectHit'] ?? true);
+        $this->redirectHitName = (string)($config['redirectHitName'] ?? 'redirect_hit');
         $this->debugMode      = (bool)($config['debugMode'] ?? false);
         $this->timeoutSeconds = (int)($config['timeoutSeconds'] ?? 2);
     }
-
     public function sendRedirectHit(string $sourceUrl, string $targetUrl, ServerRequestInterface $request): bool
     {
         if (!$this->isConfigured()) {
             $this->logger->info('RedirectAnalytics: extension not configured, skipping.');
+            return false;
+        }
+
+        if (!$this->sendPageView && !$this->sendRedirectHit) {
+            $this->logger->debug('RedirectAnalytics: no events enabled, skipping.');
             return false;
         }
 
@@ -102,34 +111,55 @@ class Ga4MeasurementProtocolService
 
     private function buildPayload(string $clientId, string $sessionId, string $sourceUrl, string $targetUrl, ServerRequestInterface $request): array
     {
-        $serverParams = $request->getServerParams();
+        $serverParams    = $request->getServerParams();
+        $timestampMicros = (int)(microtime(true) * 1_000_000);
 
-        $params = [
-            'source_url'           => $sourceUrl,
-            'destination_url'      => $targetUrl,
-            'engagement_time_msec' => 100,
+        $commonParams = [
             'page_location'        => $sourceUrl,
             'page_referrer'        => $serverParams['HTTP_REFERER'] ?? '',
             'session_id'           => $sessionId,
+            'engagement_time_msec' => 100,
         ];
 
         if ($this->debugMode) {
-            $params['debug_mode'] = 1;
+            $commonParams['debug_mode'] = 1;
         }
 
-        // Calculate the exact timestamp in microseconds
-        $timestampMicros = (int)(microtime(true) * 1000000);
+        $pageViewParams = array_merge($commonParams, [
+            'page_title' => 'Redirect: ' . parse_url($sourceUrl, PHP_URL_PATH),
+        ]);
+
+        $redirectHitParams = array_merge($commonParams, [
+            'source_url'      => $sourceUrl,
+            'destination_url' => $targetUrl,
+        ]);
+
+        $events = [];
+
+        if ($this->sendPageView) {
+            $events[] = [
+                'name'   => 'page_view',
+                'params' => array_merge($commonParams, [
+                    'page_title' => 'Redirect: ' . parse_url($sourceUrl, PHP_URL_PATH),
+                ]),
+            ];
+        }
+
+        if ($this->sendRedirectHit) {
+            $events[] = [
+                'name'   => $this->redirectHitName,
+                'params' => array_merge($commonParams, [
+                    'source_url'      => $sourceUrl,
+                    'destination_url' => $targetUrl,
+                ]),
+            ];
+        }
 
         return [
             'client_id'            => $clientId,
             'timestamp_micros'     => $timestampMicros,
             'non_personalized_ads' => false,
-            'events' => [
-                [
-                    'name'   => 'redirect_hit',
-                    'params' => $params,
-                ],
-            ],
+            'events'               => $events,
         ];
     }
     private function dispatch(array $payload): bool

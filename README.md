@@ -57,6 +57,9 @@ Go to **Admin Tools → Settings → Extension Configuration → redirectanalyti
 |---|---|
 | `measurementId` | Your GA4 property Measurement ID, e.g. `G-XXXXXXXXXX` |
 | `apiSecret` | The Measurement Protocol secret created above |
+| `pageView` | When enabled, sends a standard `page_view` event to GA4. Redirect hits will appear in the standard Pages & Screens report without any custom exploration. Default: disabled |
+| `redirectHit` | When enabled, sends a custom event to GA4 with the redirect source and destination URLs. Default: enabled |
+| `redirectHitName` | Name of the custom redirect event sent to GA4. Change it only if you need to align with an existing event naming convention. Default: `redirect_hit` |
 | `debugMode` | When enabled, sends to the GA4 debug endpoint and logs the response. Use only during testing — disable in production |
 | `timeoutSeconds` | Maximum HTTP timeout for the call to GA4. Default is 2 seconds: a low value ensures a network issue never slows down the redirect |
 

@@ -3,6 +3,12 @@
 measurementId =
 # cat=ga4; type=string; label=API Secret (Measurement Protocol)
 apiSecret =
+# cat=ga4; type=boolean; label=Send page_view
+pageView = 0
+# cat=ga4; type=boolean; label=Send event redirectHit
+redirectHit = 1
+# cat=ga4; type=string; label=Name event redirectHit (default: redirect_hit)
+redirectHitName = redirect_hit
 # cat=ga4; type=boolean; label=Debug Mode
 debugMode = 0
 # cat=ga4; type=int+; label=Timeout chiamata HTTP (secondi)
