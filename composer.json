@@ -3,6 +3,14 @@
     "description": "Tracks TYPO3 redirects via Google Analytics 4 Measurement Protocol (server-side)",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
+    "version": "0.5.1",
+    "authors": [
+        {
+            "name": "Roberto Torresani",
+            "email": "roberto@torresani.eu",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "typo3/cms-core": "^13.0",
         "typo3/cms-redirects": "^13.0"
